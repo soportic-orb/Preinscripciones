@@ -2,7 +2,10 @@
 /** Ajustes → Sistema: estado de plataforma y servidor. */
 $yes = __('system.available');
 $no = __('system.unavailable');
+$active = 'system';
 ?>
+<?php require VIEW_PATH . '/partials/admin_nav.php'; ?>
+
 <h1><?= e(__('system.title')) ?></h1>
 <p class="text-muted"><?= e(__('system.intro')) ?></p>
 

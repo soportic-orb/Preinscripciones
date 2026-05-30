@@ -23,13 +23,15 @@ app/
   bootstrap.php        Autoloader, entorno, manejo de errores
   Core/                Router, Request/Response, Database(PDO), Auth, Rbac, Csrf, I18n,
                        Validator, Migrator, Mailer, Totp, Token, Audit, Flash, Shell, ...
-  Controllers/         HomeController, AuthController, DashboardController, SystemController
-  Models/              Model (base), User
+  Controllers/         Home, Auth, Dashboard, System, Fields, Settings, Legal
+  Models/              Model (base), User, FieldDefinition, LegalDocument
+  Services/            FieldService (motor campos dinámicos), ConsentService
 config/                .env (generado, 0600), installed.lock
 database/
   migrations/          NNN_*.php (devuelven ['up'=>fn, 'down'=>fn])
   seeds/               seed.php (datos de ejemplo)
-lang/{es,ca,en,pt}/    common, auth, validation, emails, nav, dashboard, home, system
+lang/{es,ca,en,pt}/    common, auth, validation, emails, nav, dashboard, home, system,
+                       fields, settings, legal
 public/
   index.php            Front controller
   router.php           Router para `php -S` (solo desarrollo)
@@ -77,6 +79,15 @@ find app cli routes tests public/install views -name '*.php' -print0 | xargs -0 
 `owner` y `admin` → configuración de plataforma · `gestor` → gestión del proceso (sin
 configuración) · `estudiante` → su panel.
 
+## Campos dinámicos (Fase 2)
+- `FieldDefinition` (tabla `field_definitions`): define campos por `form_key` (preinscription,
+  profile, academic) con textos multiidioma (JSON), opciones, validaciones y orden.
+- `FieldService`: `renderField()` (HTML con `name="field[clave]"`), `validate()`, `save()`,
+  `values()`. Los valores se guardan en `field_values` por (entity_type, entity_id).
+- Configuración en caliente: `App\Core\Settings` (tabla `settings`) para opciones; secretos de
+  integraciones vía `App\Core\EnvWriter` (reescribe `config/.env`, 0600).
+- Legal: `LegalDocument` + `consents` con `ConsentService` (consentimientos versionados).
+
 ## Estado actual
-Ver `PLAN.md`. **Fase 1 (cimientos + instalador) completada.** Siguiente: Fase 2 del Bloque A
-(campos dinámicos + configuración de plataforma).
+Ver `PLAN.md`. **Bloque A completado (Fases 1 y 2).** Siguiente: Bloque B (catálogo formativo,
+asistente de preinscripción, paneles y flujo de aprobación).

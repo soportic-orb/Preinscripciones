@@ -28,12 +28,22 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ✅ CLI (`migrate`, `seed`, `cron`, `make:admin`) y datos de ejemplo (seed).
 - ✅ Tests de lógica crítica (24 casos, SQLite en memoria) y lint sin errores.
 
-### Fase 2 — Campos dinámicos + configuración de plataforma ⬜
-- ⬜ Motor de **definición de campos dinámicos** (tipo, etiqueta multiidioma, validaciones,
-  orden, paso/sección) + almacenamiento de valores.
-- ⬜ Configuración en caliente (tabla `settings`): formas de pago, SMTP, APIs, idiomas.
-- ⬜ **Textos legales y consentimientos versionados** con timestamp.
-- ⬜ Pantalla `Ajustes → Integraciones` con reverificación (SMTP/Stripe/Git).
+### Fase 2 — Campos dinámicos + configuración de plataforma ✅
+- ✅ Motor de **definición de campos dinámicos** (`FieldDefinition` + `FieldService`):
+  tipos text/textarea/email/tel/number/date/select/radio/checkbox, etiqueta/ayuda/placeholder
+  multiidioma, validaciones (min/max/regex), orden, sección, requerido/activo, campos de
+  sistema protegidos. Render a HTML, validación y almacenamiento de valores por entidad.
+- ✅ CRUD de campos desde el panel (`FieldsController` + vistas, multiidioma con pestañas).
+- ✅ Configuración en caliente (`Settings`, tabla `settings`): formas de pago (Stripe/Bizum/
+  transferencia), idioma por defecto, retención de datos.
+- ✅ Pantalla `Ajustes → Integraciones`: edición de SMTP/Stripe/Git escribiendo `config/.env`
+  en caliente (`EnvWriter`), con secretos preservados y **email de prueba** (AJAX).
+- ✅ **Textos legales versionados** (`LegalDocument`): privacidad/términos/cancelación, nueva
+  versión publicada por idioma desde el panel.
+- ✅ **Consentimientos versionados** (`ConsentService`, tabla `consents`) con timestamp e IP;
+  registrados automáticamente en el alta; detección de "versión vigente no aceptada".
+- ✅ Subnav de administración, seed de campos y texto legal de ejemplo, tests ampliados
+  (41 casos en total) y verificación de render de todas las vistas nuevas.
 
 ## Bloque B — Catálogo + Preinscripción + Paneles (Fases 3-6) ⬜
 - ⬜ Catálogo: cursos, convocatorias/ediciones, aforo, lista de espera, periodos,
@@ -58,5 +68,6 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ⬜ i18n completo, accesibilidad, pulido visual, tests ampliados, seguridad y seed.
 
 ---
-**Estado:** Fase 1 completada y verificada. A la espera de confirmación para continuar con
-la Fase 2 (campos dinámicos + configuración de plataforma).
+**Estado:** **Bloque A completado** (Fases 1 y 2) y verificado. A la espera de confirmación
+para continuar con el **Bloque B** (catálogo formativo + asistente de preinscripción +
+paneles + flujo de aprobación).

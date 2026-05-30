@@ -130,6 +130,10 @@ final class AuthController extends Controller
         ]);
 
         Audit::log('auth.register', $user->id, 'user', $user->id, [], $request->ip());
+
+        // Registrar el consentimiento versionado de los textos legales vigentes.
+        (new \App\Services\ConsentService())->recordAllCurrent($user->id, $request->ip());
+
         $this->sendVerificationEmail($user);
 
         Flash::success(__('auth.registered_check_email'));

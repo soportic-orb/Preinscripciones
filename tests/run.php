@@ -37,10 +37,15 @@ use App\Core\Database;
 use App\Core\Hash;
 use App\Core\I18n;
 use App\Core\Migrator;
+use App\Core\Settings;
 use App\Core\Token;
 use App\Core\Totp;
 use App\Core\Validator;
+use App\Models\FieldDefinition;
+use App\Models\LegalDocument;
 use App\Models\User;
+use App\Services\ConsentService;
+use App\Services\FieldService;
 
 $passed = 0;
 $failed = 0;
@@ -128,6 +133,82 @@ Audit::log('test.action2', $user->id, 'user', $user->id, [], '127.0.0.1');
 $rows = $db->fetchAll('SELECT * FROM {audit_log} ORDER BY id');
 check('Auditoría registra 2 filas', count($rows) === 2);
 check('Cadena de hash enlazada', $rows[1]['prev_hash'] === $rows[0]['row_hash']);
+
+// ====================== Fase 2 ======================
+echo "\n== Tests Fase 2 ==\n";
+
+// --- Settings (configuración en caliente) ---
+Settings::set('payments', 'stripe', '1');
+Settings::flush();
+check('Settings persiste y recupera', Settings::get('payments', 'stripe') === '1');
+check('Settings::bool interpreta valor', Settings::bool('payments', 'stripe') === true);
+Settings::set('payments', 'stripe', '0');
+check('Settings actualiza (upsert)', Settings::get('payments', 'stripe') === '0');
+
+// --- Motor de campos dinámicos ---
+$f1 = FieldDefinition::createFromInput([
+    'form_key' => 'preinscription', 'section' => 'datos', 'field_key' => 'telefono', 'type' => 'tel',
+    'label' => ['es' => 'Teléfono', 'ca' => 'Telèfon', 'en' => 'Phone', 'pt' => 'Telefone'],
+    'is_required' => 1, 'is_active' => 1, 'sort_order' => 10,
+]);
+$f2 = FieldDefinition::createFromInput([
+    'form_key' => 'preinscription', 'section' => 'datos', 'field_key' => 'pais', 'type' => 'select',
+    'label' => ['es' => 'País'], 'options' => [
+        ['value' => 'es', 'label' => ['es' => 'España']],
+        ['value' => 'pt', 'label' => ['es' => 'Portugal']],
+    ],
+    'is_required' => 0, 'is_active' => 1, 'sort_order' => 20,
+]);
+$fields = FieldDefinition::forForm('preinscription');
+check('forForm devuelve los campos activos', count($fields) === 2);
+check('Label localizada (en)', (function () use ($f1) {
+    \App\Core\I18n::setLocale('en');
+    $r = $f1->label() === 'Phone';
+    \App\Core\I18n::setLocale('es');
+    return $r;
+})());
+
+$svc = new FieldService();
+// Validación: requerido vacío -> error; select fuera de opciones -> error.
+$errs = $svc->validate($fields, ['telefono' => '', 'pais' => 'fr']);
+check('Validación detecta requerido vacío', isset($errs['telefono']));
+check('Validación detecta opción inválida en select', isset($errs['pais']));
+$ok = $svc->validate($fields, ['telefono' => '600123123', 'pais' => 'es']);
+check('Validación correcta sin errores', $ok === []);
+
+// Guardar y recuperar valores por entidad.
+$svc->save($fields, ['telefono' => '600123123', 'pais' => 'es'], 'preinscription', 555);
+$vals = $svc->values('preinscription', 555);
+check('Valores dinámicos se persisten', ($vals['telefono'] ?? '') === '600123123');
+$svc->save($fields, ['telefono' => '699999999', 'pais' => 'pt'], 'preinscription', 555);
+$vals = $svc->values('preinscription', 555);
+check('Valores dinámicos se actualizan (upsert)', ($vals['telefono'] ?? '') === '699999999');
+
+// Render produce HTML con el nombre agrupado.
+$html = $svc->renderField($f1, '600');
+check('Render incluye name field[telefono]', str_contains($html, 'name="field[telefono]"'));
+
+// Borrado de campo (no system) elimina también sus valores.
+FieldDefinition::delete($f2->id);
+check('Delete elimina la definición', FieldDefinition::find($f2->id) === null);
+
+// --- Textos legales versionados ---
+$v1 = LegalDocument::publishNewVersion('terms', [
+    'es' => ['title' => 'Términos', 'body' => 'v1'],
+    'en' => ['title' => 'Terms', 'body' => 'v1'],
+]);
+check('Primera versión legal es 1', $v1 === 1);
+check('currentVersion refleja publicación', LegalDocument::currentVersion('terms') === 1);
+$v2 = LegalDocument::publishNewVersion('terms', ['es' => ['title' => 'Términos', 'body' => 'v2']]);
+check('Segunda versión incrementa', $v2 === 2 && LegalDocument::currentVersion('terms') === 2);
+
+// --- Consentimientos versionados ---
+$consent = new ConsentService();
+$consent->record($user->id, 'terms', '127.0.0.1');
+check('Consentimiento aceptado de versión vigente', $consent->hasAcceptedCurrent($user->id, 'terms'));
+// Nueva versión -> el consentimiento anterior ya no cubre la vigente.
+LegalDocument::publishNewVersion('terms', ['es' => ['title' => 'Términos', 'body' => 'v3']]);
+check('Nueva versión invalida consentimiento previo', !$consent->hasAcceptedCurrent($user->id, 'terms'));
 
 echo "\nResultado: \033[32m{$passed} OK\033[0m" . ($failed > 0 ? ", \033[31m{$failed} FALLOS\033[0m" : '') . "\n";
 exit($failed > 0 ? 1 : 0);

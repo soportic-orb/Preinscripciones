@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Campos dinámicos',
+    'intro' => 'Define los campos de los formularios de preinscripción y ficha sin tocar código.',
+    'new' => 'Nuevo campo',
+    'edit' => 'Editar campo',
+    'not_found' => 'Campo no encontrado.',
+    'key_required' => 'La clave del campo es obligatoria.',
+    'saved' => 'Campo guardado.',
+    'deleted' => 'Campo eliminado.',
+    'form' => 'Formulario',
+    'section' => 'Sección',
+    'field_key' => 'Clave (identificador)',
+    'field_key_hint' => 'Solo minúsculas, números y guion bajo. No se puede repetir en el mismo formulario.',
+    'type' => 'Tipo',
+    'label' => 'Etiqueta',
+    'help' => 'Texto de ayuda',
+    'placeholder' => 'Placeholder',
+    'options' => 'Opciones',
+    'options_hint' => 'Una por línea, formato: valor|etiqueta',
+    'required' => 'Obligatorio',
+    'active' => 'Activo',
+    'sort_order' => 'Orden',
+    'validations' => 'Validaciones',
+    'valid_min' => 'Mínimo de caracteres',
+    'valid_max' => 'Máximo de caracteres',
+    'valid_regex' => 'Expresión regular',
+    'system' => 'Sistema',
+    'no_fields' => 'Aún no hay campos en este formulario.',
+    'confirm_delete' => '¿Eliminar este campo y sus valores?',
+    'preview' => 'Vista previa',
+    'forms' => [
+        'preinscription' => 'Preinscripción',
+        'profile' => 'Ficha de usuario',
+        'academic' => 'Datos académicos',
+    ],
+    'types' => [
+        'text' => 'Texto', 'textarea' => 'Área de texto', 'email' => 'Correo', 'tel' => 'Teléfono',
+        'number' => 'Número', 'date' => 'Fecha', 'select' => 'Desplegable', 'radio' => 'Opción única',
+        'checkbox' => 'Casilla',
+    ],
+];
