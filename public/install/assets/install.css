@@ -1,0 +1,84 @@
+/* Instalador IEM — estilos autocontenidos (sin CDN). */
+:root {
+    --accent: #A11600;
+    --accent-hover: #8a1300;
+    --secondary-soft: #ffeaea;
+    --text: #525252;
+    --text-strong: #2f2f2f;
+    --muted: #8a8a8a;
+    --border: #e3e3e3;
+    --ok: #1e7d4f;
+    --ok-bg: #e7f6ee;
+    --err: #A11600;
+    --err-bg: #fdecea;
+    --warn: #9a6700;
+    --warn-bg: #fff6e0;
+    --radius: 5px;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: #fafafa;
+    line-height: 1.55;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
+.card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 28px; }
+h1 { color: var(--text-strong); font-size: 1.6rem; margin: 0 0 6px; }
+h2 { color: var(--text-strong); font-size: 1.2rem; margin: 0 0 16px; }
+p { margin: 0 0 14px; }
+a { color: var(--accent); }
+.brand { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; }
+.muted { color: var(--muted); }
+
+/* Barra de progreso por pasos */
+.steps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+.steps .step {
+    flex: 1; min-width: 70px; text-align: center; font-size: .72rem; padding: 8px 4px;
+    border-radius: var(--radius); background: #f0f0f0; color: var(--muted); border: 1px solid var(--border);
+}
+.steps .step.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.steps .step.done { background: var(--secondary-soft); color: var(--accent); border-color: var(--accent); }
+
+label { display: block; font-weight: 600; color: var(--text-strong); margin: 0 0 4px; font-size: .92rem; }
+input[type=text], input[type=email], input[type=password], input[type=number], select, input[type=file] {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: inherit; font-size: 1rem; color: var(--text-strong); background: #fff;
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--secondary-soft); }
+.form-group { margin-bottom: 16px; }
+.row { display: flex; gap: 14px; flex-wrap: wrap; }
+.row > .form-group { flex: 1; min-width: 160px; }
+.hint { font-size: .82rem; color: var(--muted); margin-top: 4px; }
+
+.btn {
+    display: inline-block; font: inherit; font-weight: 600; padding: 10px 20px; border-radius: var(--radius);
+    border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; text-decoration: none;
+}
+.btn:hover { background: var(--accent-hover); }
+.btn-ghost { background: #fff; color: var(--text); border-color: var(--border); }
+.actions { display: flex; justify-content: space-between; margin-top: 24px; gap: 12px; }
+
+.check-list { list-style: none; padding: 0; margin: 0 0 16px; }
+.check-list li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+.check-list .ico { font-weight: 700; }
+.ok { color: var(--ok); }
+.err { color: var(--err); }
+.warn { color: var(--warn); }
+
+.alert { padding: 12px 14px; border-radius: var(--radius); margin-bottom: 16px; border: 1px solid transparent; }
+.alert-ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+.alert-err { background: var(--err-bg); color: var(--err); border-color: var(--err); }
+.alert-warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+
+.lang-bar { text-align: right; margin-bottom: 12px; font-size: .8rem; }
+.lang-bar a { text-transform: uppercase; margin-left: 6px; color: var(--muted); }
+.lang-bar a.active { color: var(--accent); font-weight: 700; }
+
+.log { background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: .82rem; padding: 12px; border-radius: var(--radius); max-height: 220px; overflow:auto; white-space: pre-wrap; }
+.mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.mode-cards label { border: 1px solid var(--border); border-radius: 8px; padding: 16px; cursor: pointer; font-weight: 400; }
+.mode-cards input { margin-right: 8px; }
+.mode-cards strong { color: var(--text-strong); display:block; margin-bottom: 4px; }
+@media (max-width: 560px) { .mode-cards { grid-template-columns: 1fr; } }

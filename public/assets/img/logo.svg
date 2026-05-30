@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 64" role="img" aria-label="IEM Emergència">
+  <style>
+    .iem { font-family: Helvetica, Arial, sans-serif; font-weight: 700; fill: #A11600; }
+    .sub { font-family: Helvetica, Arial, sans-serif; font-weight: 400; fill: #A11600; }
+  </style>
+  <!-- Estrella de la vida estilizada (motivo de marca) -->
+  <g fill="#A11600" transform="translate(8,12)">
+    <rect x="16" y="2" width="8" height="36" rx="2"/>
+    <rect x="2" y="16" width="36" height="8" rx="2" transform="rotate(60 20 20)"/>
+    <rect x="2" y="16" width="36" height="8" rx="2" transform="rotate(-60 20 20)"/>
+  </g>
+  <text class="iem" x="60" y="34" font-size="30">IEM</text>
+  <text class="sub" x="61" y="50" font-size="12" letter-spacing="2">emergència</text>
+</svg>

@@ -1,0 +1,10 @@
+# ============================================================================
+#  Redirección a public/ cuando el DocumentRoot apunta a la raíz del proyecto
+#  (típico en hosting compartido). Lo ideal es apuntar el DocumentRoot a /public.
+# ============================================================================
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(\.git|app|config|database|storage|lang|routes|tests|vendor)(/.*)?$ - [F,L]
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
