@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Camps dinàmics',
+    'intro' => 'Defineix els camps dels formularis de preinscripció i fitxa sense tocar codi.',
+    'new' => 'Nou camp',
+    'edit' => 'Editar camp',
+    'not_found' => 'Camp no trobat.',
+    'key_required' => 'La clau del camp és obligatòria.',
+    'saved' => 'Camp desat.',
+    'deleted' => 'Camp eliminat.',
+    'form' => 'Formulari',
+    'section' => 'Secció',
+    'field_key' => 'Clau (identificador)',
+    'field_key_hint' => 'Només minúscules, números i guió baix. No es pot repetir al mateix formulari.',
+    'type' => 'Tipus',
+    'label' => 'Etiqueta',
+    'help' => 'Text d\'ajuda',
+    'placeholder' => 'Placeholder',
+    'options' => 'Opcions',
+    'options_hint' => 'Una per línia, format: valor|etiqueta',
+    'required' => 'Obligatori',
+    'active' => 'Actiu',
+    'sort_order' => 'Ordre',
+    'validations' => 'Validacions',
+    'valid_min' => 'Mínim de caràcters',
+    'valid_max' => 'Màxim de caràcters',
+    'valid_regex' => 'Expressió regular',
+    'system' => 'Sistema',
+    'no_fields' => 'Encara no hi ha camps en aquest formulari.',
+    'confirm_delete' => 'Vols eliminar aquest camp i els seus valors?',
+    'preview' => 'Vista prèvia',
+    'forms' => [
+        'preinscription' => 'Preinscripció',
+        'profile' => 'Fitxa d\'usuari',
+        'academic' => 'Dades acadèmiques',
+    ],
+    'types' => [
+        'text' => 'Text', 'textarea' => 'Àrea de text', 'email' => 'Correu', 'tel' => 'Telèfon',
+        'number' => 'Número', 'date' => 'Data', 'select' => 'Desplegable', 'radio' => 'Opció única',
+        'checkbox' => 'Casella',
+    ],
+];

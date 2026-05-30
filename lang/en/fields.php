@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Dynamic fields',
+    'intro' => 'Define the pre-registration and profile form fields without touching code.',
+    'new' => 'New field',
+    'edit' => 'Edit field',
+    'not_found' => 'Field not found.',
+    'key_required' => 'The field key is required.',
+    'saved' => 'Field saved.',
+    'deleted' => 'Field deleted.',
+    'form' => 'Form',
+    'section' => 'Section',
+    'field_key' => 'Key (identifier)',
+    'field_key_hint' => 'Lowercase, numbers and underscore only. Must be unique within the form.',
+    'type' => 'Type',
+    'label' => 'Label',
+    'help' => 'Help text',
+    'placeholder' => 'Placeholder',
+    'options' => 'Options',
+    'options_hint' => 'One per line, format: value|label',
+    'required' => 'Required',
+    'active' => 'Active',
+    'sort_order' => 'Order',
+    'validations' => 'Validations',
+    'valid_min' => 'Minimum characters',
+    'valid_max' => 'Maximum characters',
+    'valid_regex' => 'Regular expression',
+    'system' => 'System',
+    'no_fields' => 'No fields in this form yet.',
+    'confirm_delete' => 'Delete this field and its values?',
+    'preview' => 'Preview',
+    'forms' => [
+        'preinscription' => 'Pre-registration',
+        'profile' => 'User profile',
+        'academic' => 'Academic data',
+    ],
+    'types' => [
+        'text' => 'Text', 'textarea' => 'Text area', 'email' => 'Email', 'tel' => 'Phone',
+        'number' => 'Number', 'date' => 'Date', 'select' => 'Dropdown', 'radio' => 'Single choice',
+        'checkbox' => 'Checkbox',
+    ],
+];

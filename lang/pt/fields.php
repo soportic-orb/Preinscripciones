@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'title' => 'Campos dinâmicos',
+    'intro' => 'Defina os campos dos formulários de pré-inscrição e ficha sem mexer no código.',
+    'new' => 'Novo campo',
+    'edit' => 'Editar campo',
+    'not_found' => 'Campo não encontrado.',
+    'key_required' => 'A chave do campo é obrigatória.',
+    'saved' => 'Campo guardado.',
+    'deleted' => 'Campo eliminado.',
+    'form' => 'Formulário',
+    'section' => 'Secção',
+    'field_key' => 'Chave (identificador)',
+    'field_key_hint' => 'Apenas minúsculas, números e sublinhado. Não pode repetir-se no mesmo formulário.',
+    'type' => 'Tipo',
+    'label' => 'Etiqueta',
+    'help' => 'Texto de ajuda',
+    'placeholder' => 'Placeholder',
+    'options' => 'Opções',
+    'options_hint' => 'Uma por linha, formato: valor|etiqueta',
+    'required' => 'Obrigatório',
+    'active' => 'Ativo',
+    'sort_order' => 'Ordem',
+    'validations' => 'Validações',
+    'valid_min' => 'Mínimo de caracteres',
+    'valid_max' => 'Máximo de caracteres',
+    'valid_regex' => 'Expressão regular',
+    'system' => 'Sistema',
+    'no_fields' => 'Ainda não há campos neste formulário.',
+    'confirm_delete' => 'Eliminar este campo e os seus valores?',
+    'preview' => 'Pré-visualização',
+    'forms' => [
+        'preinscription' => 'Pré-inscrição',
+        'profile' => 'Ficha de utilizador',
+        'academic' => 'Dados académicos',
+    ],
+    'types' => [
+        'text' => 'Texto', 'textarea' => 'Área de texto', 'email' => 'Correio', 'tel' => 'Telefone',
+        'number' => 'Número', 'date' => 'Data', 'select' => 'Lista pendente', 'radio' => 'Opção única',
+        'checkbox' => 'Caixa',
+    ],
+];

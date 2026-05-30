@@ -1,0 +1,29 @@
+# Entorno y secretos
+/config/.env
+/config/installed.lock
+
+# Almacenamiento (logs, caché, backups) — se versiona la estructura, no el contenido
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/backups/*
+!/storage/backups/.gitkeep
+/storage/tmp/*
+!/storage/tmp/.gitkeep
+
+# Subidas de usuarios
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# Dependencias de desarrollo de PHP (vendor/ SÍ se versiona para hosting compartido,
+# pero ignoramos artefactos locales de composer)
+composer.phar
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.log
