@@ -113,6 +113,13 @@ configuración) · `estudiante` → su panel.
 - **Dependencias de terceros vendorizadas** en `vendor/` (Dompdf, Stripe SDK); el autoloader propio
   carga `vendor/autoload.php` si existe. `composer.json`/`composer.lock` versionados.
 
+## Comunicación y datos (Bloque D)
+- Mensajería: `MessageThread` + `MessageService` (hilos estudiante↔staff, no leídos por id de
+  mensaje, notificación por email/toast). `EmailTemplate` + `Notifier` (plantilla de BD por
+  evento/idioma con variables, o texto i18n por defecto).
+- `ReminderService` (cron, `cli/cron.php`): recordatorios idempotentes (tabla `reminders_sent`).
+- `ReportService`: KPIs y exportación CSV. `AuditController` (visor de auditoría, solo admin).
+
 ## Estado actual
-Ver `PLAN.md`. **Bloques A, B y C completados (Fases 1-8).** Siguiente: Bloque D (mensajería +
-editor de plantillas, notificaciones/recordatorios por cron, informes/KPIs/auditoría).
+Ver `PLAN.md`. **Bloques A, B, C y D completados (Fases 1-11).** Siguiente: Bloque E (certificados
+PDF + AlexiaEdu + iCal, OTA por Git, migración guiada y pulido final).

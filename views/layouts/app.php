@@ -33,6 +33,7 @@ $user = Auth::user();
                     <a class="btn btn-primary" href="<?= e(url('/registro')) ?>"><?= e(__('nav.register')) ?></a>
                 <?php else: ?>
                     <a href="<?= e(url('/panel')) ?>"><?= e(__('nav.dashboard')) ?></a>
+                    <a href="<?= e(url('/panel/mensajes')) ?>"><?= e(__('messages.title')) ?></a>
                     <form method="post" action="<?= e(url('/logout')) ?>" style="display:inline">
                         <?= csrf_field() ?>
                         <button type="submit" class="btn btn-ghost"><?= e(__('common.logout')) ?></button>

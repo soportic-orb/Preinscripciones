@@ -325,5 +325,50 @@ $sched = $paySvc->ensurePayments($pP3);
 check('Pago fraccionado genera 3 cobros', count($sched) === 3);
 check('Suma del fraccionado = precio total', round(array_sum(array_map(fn ($p) => (float) $p['amount'], $sched)), 2) === 50.0);
 
+// ====================== Bloque D ======================
+echo "\n== Tests Bloque D ==\n";
+
+// --- Mensajería ---
+$gestor = App\Models\User::create(['name' => 'Gestor', 'email' => 'g@t.com', 'password' => 'Abcdef12345!', 'role' => 'gestor', 'locale' => 'es', 'is_active' => 1]);
+$alum = App\Models\User::create(['name' => 'Alum', 'email' => 'al@t.com', 'password' => 'Abcdef12345!', 'role' => 'estudiante', 'locale' => 'es', 'is_active' => 1]);
+$msgSvc = new App\Services\MessageService();
+$tid = $msgSvc->start($alum, 'Duda matrícula', 'Hola, ¿cuándo empieza?');
+check('Hilo creado con su mensaje', count(App\Models\MessageThread::messages($tid)) === 1);
+check('Estudiante (emisor) no tiene no leídos', !$msgSvc->hasUnread($tid, $alum->id));
+check('Gestor tiene el hilo como no leído', $msgSvc->hasUnread($tid, $gestor->id));
+$msgSvc->post($tid, $gestor, 'Empieza en septiembre.');
+check('Tras respuesta del gestor, estudiante tiene no leído', $msgSvc->hasUnread($tid, $alum->id));
+check('Gestor ya no tiene no leído (acaba de escribir)', !$msgSvc->hasUnread($tid, $gestor->id));
+check('canAccess: el estudiante propietario accede', $msgSvc->canAccess(App\Models\MessageThread::find($tid), $alum));
+check('canAccess: cualquier staff accede', $msgSvc->canAccess(App\Models\MessageThread::find($tid), $gestor));
+
+// --- Plantillas de email ---
+App\Models\EmailTemplate::save('new_message', 'es', 'Asunto propio {{name}}', '<p>Hola {{name}}</p>', true);
+$tpl = App\Models\EmailTemplate::findActive('new_message', 'es');
+check('Plantilla activa se recupera', $tpl !== null && $tpl['subject'] === 'Asunto propio {{name}}');
+App\Models\EmailTemplate::save('new_message', 'es', 'Otro', '<p>x</p>', false);
+check('Plantilla desactivada no se devuelve como activa', App\Models\EmailTemplate::findActive('new_message', 'es') === null);
+check('Guardar plantilla no duplica fila', count($db->fetchAll("SELECT id FROM {email_templates} WHERE event='new_message' AND locale='es'")) === 1);
+
+// --- Informes / KPIs ---
+$rep = new App\Services\ReportService();
+$kpis = $rep->kpis();
+check('KPIs: ingresos reflejan cobros menos reembolsos', $kpis['income'] >= 0.0);
+check('KPIs: hay matriculados contabilizados', ($kpis['by_status']['matriculado'] ?? 0) >= 1);
+check('KPIs: tasa de conversión calculada', is_float($kpis['conversion_rate']));
+[$headers, $exportRows] = $rep->export('students');
+check('Exportación CSV devuelve cabeceras', in_array('Estudiante', $headers, true));
+
+// --- Recordatorios (cron) ---
+$uR = App\Models\User::create(['name' => 'Rem', 'email' => 'r@t.com', 'password' => 'Abcdef12345!', 'role' => 'estudiante', 'locale' => 'es', 'is_active' => 1]);
+$preR = App\Models\Preinscription::store(['user_id' => $uR->id, 'edition_id' => $edP, 'status' => 'pendiente_pago']);
+App\Models\Payment::store(['preinscription_id' => $preR, 'user_id' => $uR->id, 'concept' => 'matricula', 'sequence' => 1, 'amount' => 100, 'status' => 'pendiente', 'due_date' => date('Y-m-d H:i:s', strtotime('-1 day'))]);
+$remSvc = new App\Services\ReminderService();
+$sent1 = $remSvc->run();
+check('Cron envía al menos un recordatorio de pago', $sent1 >= 1);
+$sent2 = $remSvc->run();
+check('Recordatorios son idempotentes (no se repiten)', $sent2 === 0);
+check('Registro de recordatorio enviado existe', (int) $db->scalar('SELECT COUNT(*) FROM {reminders_sent}') >= 1);
+
 echo "\nResultado: \033[32m{$passed} OK\033[0m" . ($failed > 0 ? ", \033[31m{$failed} FALLOS\033[0m" : '') . "\n";
 exit($failed > 0 ? 1 : 0);

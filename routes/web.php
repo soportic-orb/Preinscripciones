@@ -62,9 +62,15 @@ return static function (Router $r): void {
         $r->get('/panel/preinscripcion/{id}/pago', 'PaymentController@show')->name('payment.show');
         $r->get('/panel/facturacion', 'BillingController@profile')->name('billing.profile');
         $r->get('/factura/{id}', 'BillingController@download')->name('invoice.download');
+
+        // Mensajería (estudiante y personal)
+        $r->get('/panel/mensajes', 'MessagesController@index')->name('messages.index');
+        $r->get('/panel/mensajes/{id}', 'MessagesController@show')->name('messages.show');
     });
     $r->group(['auth', 'csrf'], function (Router $r): void {
         $r->post('/logout', 'AuthController@logout')->name('logout');
+        $r->post('/panel/mensajes', 'MessagesController@start')->name('messages.start');
+        $r->post('/panel/mensajes/{id}', 'MessagesController@reply')->name('messages.reply');
         $r->post('/preinscripcion/iniciar', 'PreinscriptionController@start')->name('preinscription.start');
         $r->post('/preinscripcion/{id}/paso/{step}', 'PreinscriptionController@save')->name('preinscription.save');
         $r->post('/preinscripcion/{id}/documento', 'PreinscriptionController@uploadDocument')->name('preinscription.upload');
@@ -92,6 +98,10 @@ return static function (Router $r): void {
 
         // Pagos y facturas (staff)
         $r->get('/gestion/pagos', 'ManagePaymentsController@index')->name('payments.manage');
+
+        // Informes / KPIs / exportación
+        $r->get('/gestion/informes', 'ReportsController@index')->name('reports.index');
+        $r->get('/gestion/informes/export', 'ReportsController@export')->name('reports.export');
     });
     $r->group(['role:owner,admin,gestor', 'csrf'], function (Router $r): void {
         $r->post('/gestion/cursos', 'CoursesController@store')->name('courses.store');
@@ -137,6 +147,11 @@ return static function (Router $r): void {
         $r->get('/gestion/sistema/facturacion', 'SettingsController@billing')->name('settings.billing');
         $r->get('/gestion/descuentos', 'DiscountsController@index')->name('discounts.index');
         $r->get('/gestion/descuentos/nuevo', 'DiscountsController@create')->name('discounts.create');
+
+        // Plantillas de email y visor de auditoría
+        $r->get('/gestion/sistema/plantillas', 'EmailTemplatesController@index')->name('templates.index');
+        $r->get('/gestion/sistema/plantillas/{event}/{locale}', 'EmailTemplatesController@edit')->name('templates.edit');
+        $r->get('/gestion/auditoria', 'AuditController@index')->name('audit.index');
     });
 
     $r->group(['role:owner,admin', 'csrf'], function (Router $r): void {
@@ -152,5 +167,6 @@ return static function (Router $r): void {
 
         $r->post('/gestion/sistema/facturacion', 'SettingsController@saveBilling')->name('settings.billing.save');
         $r->post('/gestion/descuentos', 'DiscountsController@store')->name('discounts.store');
+        $r->post('/gestion/sistema/plantillas/{event}/{locale}', 'EmailTemplatesController@store')->name('templates.store');
     });
 };

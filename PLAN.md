@@ -87,10 +87,23 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ✅ Emisión automática de factura al cobrar; matrícula completada (→ matriculado) al pagar todo.
 - ✅ Dependencias vendorizadas (Dompdf, Stripe SDK). Tests a 78 y e2e real del flujo de pago.
 
-## Bloque D — Comunicación + Datos (Fases 9-11) ⬜
-- ⬜ Mensajería interna + editor visual de plantillas (GrapesJS + MJML).
-- ⬜ Notificaciones y recordatorios (cron) multiidioma en todos los eventos.
-- ⬜ Informes, KPIs, exportación CSV/Excel, visor de auditoría.
+## Bloque D — Comunicación + Datos (Fases 9-11) ✅
+### Fase 9 — Mensajería + plantillas de email ✅
+- ✅ **Mensajería interna** estudiante↔gestión (hilos, no leídos por id de mensaje, notificación
+  por email + toast al recibir uno nuevo).
+- ✅ **Plantillas de email editables** por evento e idioma (asunto + HTML con variables y vista
+  previa). El `Notifier` usa la plantilla de BD si está activa; si no, el texto i18n por defecto.
+  *(Editor HTML con preview; GrapesJS/MJML autoalojado se puede acoplar después.)*
+### Fase 10 — Notificaciones y recordatorios ✅
+- ✅ Eventos clave con email (idioma del destinatario) + toast (cableados en los bloques previos).
+- ✅ **Recordatorios automáticos por cron** (`ReminderService`): pago/plazo pendiente, documentación
+  incompleta, inicio de curso próximo y cierre de plazo, **idempotentes** (tabla reminders_sent).
+### Fase 11 — Informes, estadísticas y auditoría ✅
+- ✅ **Dashboard de KPIs**: preinscripciones, matriculados, tasa de conversión, ingresos, pagos y
+  documentación pendientes, lista de espera y ocupación por convocatoria.
+- ✅ **Exportación CSV** (estudiantes por convocatoria, pagos, documentación pendiente) con BOM.
+- ✅ **Visor de auditoría** (solo admin) con filtros por acción, usuario y fechas, paginado.
+- ✅ Tests ampliados a 95 y e2e real (mensajería, KPIs, export CSV, cron de recordatorios).
 
 ## Bloque E — Integraciones + Operaciones (Fases 12-15) ⬜
 - ⬜ Certificados PDF + AlexiaEdu (CSV/API) + iCal.
@@ -99,6 +112,6 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ⬜ i18n completo, accesibilidad, pulido visual, tests ampliados, seguridad y seed.
 
 ---
-**Estado:** **Bloques A, B y C completados** (Fases 1-8) y verificados (78 tests + e2e real sobre
-SQLite, incl. flujo de pago y factura PDF). A la espera de confirmación para el **Bloque D**
-(mensajería + editor de plantillas, notificaciones/recordatorios por cron, informes/KPIs/auditoría).
+**Estado:** **Bloques A, B, C y D completados** (Fases 1-11) y verificados (95 tests + e2e real sobre
+SQLite). A la espera de confirmación para el **Bloque E** (certificados + AlexiaEdu + iCal, OTA Git,
+migración guiada y pulido final).

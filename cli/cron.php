@@ -13,6 +13,8 @@
 declare(strict_types=1);
 
 use App\Core\Logger;
+use App\Services\ReminderService;
 
-Logger::info('Cron ejecutado.', ['ts' => date('c')], 'cron');
-echo "[cron] OK " . date('c') . "\n";
+$sent = (new ReminderService())->run();
+Logger::info('Cron ejecutado.', ['ts' => date('c'), 'reminders_sent' => $sent], 'cron');
+echo "[cron] OK " . date('c') . " — recordatorios enviados: {$sent}\n";
