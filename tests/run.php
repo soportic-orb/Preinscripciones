@@ -269,5 +269,61 @@ check('Falta documentación obligatoria', !$docSvc->allRequiredValidated($p2, $e
 $db->insert('preinscription_documents', ['preinscription_id' => $p2, 'requirement_id' => $reqId, 'file_path' => 'x', 'original_name' => 'x.pdf', 'status' => 'validado', 'uploaded_at' => date('Y-m-d H:i:s')]);
 check('Documentación obligatoria validada', $docSvc->allRequiredValidated($p2, $edId, $courseId));
 
+// ====================== Bloque C ======================
+echo "\n== Tests Bloque C ==\n";
+
+$cidP = App\Models\Course::store(['code' => 'PAY', 'title' => '{"es":"Pago"}', 'description' => '{}', 'access_requirements' => '{}', 'course_type' => 'reglado', 'price' => 200, 'is_active' => 1]);
+$edP = App\Models\CourseEdition::store(['course_id' => $cidP, 'name' => 'EdP', 'modality' => 'online', 'capacity' => 0, 'waitlist_enabled' => 0, 'payment_methods' => '[]', 'status' => 'open']);
+$uP = App\Models\User::create(['name' => 'Pay', 'email' => 'pay@t.com', 'password' => 'Abcdef12345!', 'role' => 'estudiante', 'locale' => 'es', 'is_active' => 1]);
+$pP = App\Models\Preinscription::store(['user_id' => $uP->id, 'edition_id' => $edP, 'status' => 'pendiente_pago']);
+
+$paySvc = new App\Services\PaymentService();
+$paymentsC = $paySvc->ensurePayments($pP);
+check('ensurePayments crea un pago único', count($paymentsC) === 1);
+check('Importe del pago = precio de la edición', (float) $paymentsC[0]['amount'] === 200.0);
+check('ensurePayments es idempotente', count($paySvc->ensurePayments($pP)) === 1);
+
+App\Models\Discount::store(['code' => 'BECA10', 'name' => 'Beca 10%', 'type' => 'percent', 'value' => 10, 'scope' => 'all', 'max_uses' => 0, 'used_count' => 0, 'is_active' => 1]);
+$res = $paySvc->applyDiscountCode($pP, 'BECA10');
+check('Código de descuento válido se aplica', $res['ok'] === true);
+$paymentC = App\Models\Payment::forPreinscription($pP)[0];
+check('Descuento del 10% sobre 200 = 20', (float) $paymentC['discount_amount'] === 20.0);
+check('Neto tras descuento = 180', App\Models\Payment::netAmount($paymentC) === 180.0);
+check('Código inválido se rechaza', $paySvc->applyDiscountCode($pP, 'NOEXISTE')['ok'] === false);
+check('Descuento no se aplica dos veces', $paySvc->applyDiscountCode($pP, 'BECA10')['ok'] === false);
+
+$paySvc->markPaid((int) $paymentC['id'], 'stripe', null, 'TEST');
+$paymentC = App\Models\Payment::find((int) $paymentC['id']);
+check('Pago marcado como pagado', $paymentC['status'] === 'pagado');
+$inv = $db->fetch('SELECT * FROM {invoices} WHERE payment_id = ?', [$paymentC['id']]);
+check('Factura emitida tras el cobro', $inv !== null);
+check('Número de factura correlativo (1)', (int) $inv['number'] === 1);
+check('Factura exenta de IVA por defecto y total 180', (int) $inv['is_exempt'] === 1 && (float) $inv['total'] === 180.0);
+check('Preinscripción pasa a matriculado al pagar todo', App\Models\Preinscription::find($pP)['status'] === 'matriculado');
+
+$cidP2 = App\Models\Course::store(['code' => 'PAY2', 'title' => '{"es":"P2"}', 'description' => '{}', 'access_requirements' => '{}', 'course_type' => 'reglado', 'price' => 50, 'is_active' => 1]);
+$edP2 = App\Models\CourseEdition::store(['course_id' => $cidP2, 'name' => 'EdP2', 'modality' => 'online', 'capacity' => 0, 'payment_methods' => '[]', 'status' => 'open']);
+$pP2 = App\Models\Preinscription::store(['user_id' => $uP->id, 'edition_id' => $edP2, 'status' => 'pendiente_pago']);
+$pay2 = $paySvc->ensurePayments($pP2)[0];
+$paySvc->markPaid((int) $pay2['id'], 'transfer', null, 'T2');
+$inv2 = $db->fetch('SELECT * FROM {invoices} WHERE payment_id = ?', [$pay2['id']]);
+check('Segunda factura correlativa (2)', (int) $inv2['number'] === 2);
+
+$paySvc->refund((int) $paymentC['id'], 180.0, 'baja', null);
+check('Pago marcado como reembolsado', App\Models\Payment::find((int) $paymentC['id'])['status'] === 'reembolsado');
+$credit = $db->fetch("SELECT * FROM {invoices} WHERE payment_id = ? AND type = 'credit_note'", [$paymentC['id']]);
+check('Nota de crédito emitida', $credit !== null && (float) $credit['total'] === -180.0);
+
+App\Models\BillingProfile::save($uP->id, ['name' => 'Empresa SL', 'tax_id' => 'B123', 'is_company' => 1]);
+check('Perfil fiscal se guarda', App\Models\BillingProfile::forUser($uP->id)['name'] === 'Empresa SL');
+App\Models\BillingProfile::save($uP->id, ['name' => 'Empresa SLU', 'tax_id' => 'B123', 'is_company' => 1]);
+check('Perfil fiscal se actualiza (no duplica)', count($db->fetchAll('SELECT id FROM {billing_profiles} WHERE user_id = ?', [$uP->id])) === 1);
+
+$db->update('course_editions', ['allow_installments' => 1, 'installments_count' => 3, 'deposit' => 60], ['id' => $edP2]);
+$pP3 = App\Models\Preinscription::store(['user_id' => $uP->id, 'edition_id' => $edP2, 'status' => 'pendiente_pago']);
+$sched = $paySvc->ensurePayments($pP3);
+check('Pago fraccionado genera 3 cobros', count($sched) === 3);
+check('Suma del fraccionado = precio total', round(array_sum(array_map(fn ($p) => (float) $p['amount'], $sched)), 2) === 50.0);
+
 echo "\nResultado: \033[32m{$passed} OK\033[0m" . ($failed > 0 ? ", \033[31m{$failed} FALLOS\033[0m" : '') . "\n";
 exit($failed > 0 ? 1 : 0);

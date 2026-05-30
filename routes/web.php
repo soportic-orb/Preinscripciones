@@ -43,6 +43,9 @@ return static function (Router $r): void {
     // --- Catálogo público de preinscripción ---
     $r->get('/preinscripcion', 'PreinscriptionController@catalog')->name('catalog');
 
+    // --- Webhook de Stripe (público, sin CSRF; verifica firma) ---
+    $r->post('/webhooks/stripe', 'StripeWebhookController@handle')->name('stripe.webhook');
+
     // --- Sesión autenticada ---
     $r->group(['auth'], function (Router $r): void {
         $r->get('/panel', 'DashboardController@index')->name('dashboard');
@@ -54,6 +57,11 @@ return static function (Router $r): void {
         $r->get('/panel/preinscripcion/{id}', 'StudentController@show')->name('student.preinscription');
         $r->get('/panel/exportar-datos', 'StudentController@exportData')->name('student.export');
         $r->get('/documento/{id}', 'StudentController@download')->name('document.download');
+
+        // Pagos y facturación (estudiante)
+        $r->get('/panel/preinscripcion/{id}/pago', 'PaymentController@show')->name('payment.show');
+        $r->get('/panel/facturacion', 'BillingController@profile')->name('billing.profile');
+        $r->get('/factura/{id}', 'BillingController@download')->name('invoice.download');
     });
     $r->group(['auth', 'csrf'], function (Router $r): void {
         $r->post('/logout', 'AuthController@logout')->name('logout');
@@ -62,6 +70,13 @@ return static function (Router $r): void {
         $r->post('/preinscripcion/{id}/documento', 'PreinscriptionController@uploadDocument')->name('preinscription.upload');
         $r->post('/panel/preinscripcion/{id}/documento', 'StudentController@uploadDocument')->name('student.upload');
         $r->post('/panel/solicitar-supresion', 'StudentController@requestDeletion')->name('student.deletion');
+
+        // Pagos (estudiante)
+        $r->post('/panel/preinscripcion/{id}/pago/descuento', 'PaymentController@applyDiscount')->name('payment.discount');
+        $r->post('/panel/preinscripcion/{id}/pago/stripe', 'PaymentController@payStripe')->name('payment.stripe');
+        $r->post('/panel/preinscripcion/{id}/pago/justificante', 'PaymentController@submitProof')->name('payment.proof');
+        $r->post('/panel/preinscripcion/{id}/pago/fundae', 'PaymentController@saveFundae')->name('payment.fundae');
+        $r->post('/panel/facturacion', 'BillingController@saveProfile')->name('billing.save');
     });
 
     // --- Gestión del proceso (staff: owner/admin/gestor) ---
@@ -74,6 +89,9 @@ return static function (Router $r): void {
 
         $r->get('/gestion/preinscripciones', 'ManagePreinscriptionsController@index')->name('manage.index');
         $r->get('/gestion/preinscripciones/{id}', 'ManagePreinscriptionsController@show')->name('manage.show');
+
+        // Pagos y facturas (staff)
+        $r->get('/gestion/pagos', 'ManagePaymentsController@index')->name('payments.manage');
     });
     $r->group(['role:owner,admin,gestor', 'csrf'], function (Router $r): void {
         $r->post('/gestion/cursos', 'CoursesController@store')->name('courses.store');
@@ -88,6 +106,9 @@ return static function (Router $r): void {
         $r->post('/gestion/preinscripciones/{id}/aceptar', 'ManagePreinscriptionsController@accept')->name('manage.accept');
         $r->post('/gestion/preinscripciones/{id}/rechazar', 'ManagePreinscriptionsController@reject')->name('manage.reject');
         $r->post('/gestion/preinscripciones/{id}/transicion', 'ManagePreinscriptionsController@transition')->name('manage.transition');
+
+        $r->post('/gestion/pagos/{id}/validar', 'ManagePaymentsController@validateProof')->name('payments.validate');
+        $r->post('/gestion/pagos/{id}/reembolso', 'ManagePaymentsController@refund')->name('payments.refund');
     });
 
     // --- Panel de gestión (staff) ---
@@ -111,6 +132,11 @@ return static function (Router $r): void {
         // Textos legales
         $r->get('/gestion/sistema/legales', 'LegalController@index')->name('legal.index');
         $r->get('/gestion/sistema/legales/{type}/editar', 'LegalController@edit')->name('legal.edit');
+
+        // Facturación (ajustes) y descuentos
+        $r->get('/gestion/sistema/facturacion', 'SettingsController@billing')->name('settings.billing');
+        $r->get('/gestion/descuentos', 'DiscountsController@index')->name('discounts.index');
+        $r->get('/gestion/descuentos/nuevo', 'DiscountsController@create')->name('discounts.create');
     });
 
     $r->group(['role:owner,admin', 'csrf'], function (Router $r): void {
@@ -123,5 +149,8 @@ return static function (Router $r): void {
         $r->post('/gestion/sistema/integraciones/test-mail', 'SettingsController@testMail')->name('settings.test_mail');
 
         $r->post('/gestion/sistema/legales/{type}', 'LegalController@store')->name('legal.store');
+
+        $r->post('/gestion/sistema/facturacion', 'SettingsController@saveBilling')->name('settings.billing.save');
+        $r->post('/gestion/descuentos', 'DiscountsController@store')->name('discounts.store');
     });
 };

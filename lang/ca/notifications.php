@@ -20,4 +20,6 @@ return [
 
     'enrollment_available_subject' => 'Matrícula disponible — :course',
     'enrollment_available_body' => "Hola :name,\n\nJa pots formalitzar la teva matrícula del curs :course (:edition) i fer el pagament des del teu panell d\'estudiant.",
+    'payment_confirmed_subject' => 'Pagament confirmat — IEM',
+    'payment_confirmed_body' => "Hola :name,\n\nHem registrat correctament el teu pagament de :amount €. Gràcies. Aviat rebràs la factura al teu panell.",
 ];

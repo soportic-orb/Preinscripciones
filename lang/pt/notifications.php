@@ -20,4 +20,6 @@ return [
 
     'enrollment_available_subject' => 'Matrícula disponível — :course',
     'enrollment_available_body' => "Olá :name,\n\nJá pode formalizar a sua matrícula do curso :course (:edition) e efetuar o pagamento a partir do seu painel de estudante.",
+    'payment_confirmed_subject' => 'Pagamento confirmado — IEM',
+    'payment_confirmed_body' => "Olá :name,\n\nRegistámos com sucesso o seu pagamento de :amount €. Obrigado. Em breve receberá a fatura no seu painel.",
 ];

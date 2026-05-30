@@ -103,6 +103,16 @@ configuración) · `estudiante` → su panel.
 - `Notifier`: emails multiidioma (grupo lang `notifications`) en el idioma del destinatario.
 - Asistente multipaso con campos dinámicos, tutor (menor) y guardar/reanudar (borrador).
 
+## Pagos y facturación (Bloque C)
+- `Payment` (calendario de cobros: matrícula/plazos), `PaymentService` (genera pagos, aplica
+  descuentos, valida justificantes, cobra → factura → matriculado, reembolsa con nota de crédito).
+- `StripeGateway` (Checkout real si hay claves, simulado si no; webhook en `/webhooks/stripe`).
+  Bizum/transferencia con justificante validado por el gestor.
+- `Discount` (códigos/becas), `BillingProfile` (datos fiscales), `Invoice` + `InvoiceService`
+  (PDF con **Dompdf**, numeración correlativa, IVA/exención, abonos). Datos FUNDAE.
+- **Dependencias de terceros vendorizadas** en `vendor/` (Dompdf, Stripe SDK); el autoloader propio
+  carga `vendor/autoload.php` si existe. `composer.json`/`composer.lock` versionados.
+
 ## Estado actual
-Ver `PLAN.md`. **Bloques A y B completados (Fases 1-6).** Siguiente: Bloque C (pagos:
-Stripe/Bizum/transferencia, fraccionado, descuentos, FUNDAE; y facturación PDF).
+Ver `PLAN.md`. **Bloques A, B y C completados (Fases 1-8).** Siguiente: Bloque D (mensajería +
+editor de plantillas, notificaciones/recordatorios por cron, informes/KPIs/auditoría).

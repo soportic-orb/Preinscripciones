@@ -71,9 +71,21 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
   lista de espera, matrícula disponible) + toasts.
 - ✅ Tests del bloque (58 en total) y verificación e2e real (login, gestión y asistente).
 
-## Bloque C — Dinero (Fases 7-8) ⬜
-- ⬜ Pagos: Stripe, Bizum, transferencia con validación, fraccionado, descuentos/becas, FUNDAE.
-- ⬜ Facturación: datos fiscales, facturas/recibos PDF, cancelaciones y reembolsos.
+## Bloque C — Dinero (Fases 7-8) ✅
+### Fase 7 — Pagos ✅
+- ✅ **Calendario de cobros** por preinscripción (matrícula única o **fraccionado**: depósito + plazos
+  con vencimientos), generado al pasar a pendiente de pago.
+- ✅ **Stripe** (Checkout real si hay claves; **modo simulado** para demo) con **webhook** de confirmación.
+- ✅ **Transferencia** y **Bizum** con subida de justificante → en revisión → validación del gestor.
+- ✅ **Descuentos/becas/códigos** (porcentaje o importe, ámbito, validez, usos máximos) + CRUD admin.
+- ✅ **FUNDAE**: captura de datos de empresa y trabajador para la bonificación.
+### Fase 8 — Facturación ✅
+- ✅ **Perfiles fiscales** (estudiante o empresa). **Facturas/recibos PDF** (Dompdf) con **numeración
+  correlativa** por serie/año, IVA o **exención** configurable, descargables (fuera del webroot,
+  con control de acceso).
+- ✅ **Cancelaciones y reembolsos** (total/parcial) con **nota de crédito** (abono) y auditoría.
+- ✅ Emisión automática de factura al cobrar; matrícula completada (→ matriculado) al pagar todo.
+- ✅ Dependencias vendorizadas (Dompdf, Stripe SDK). Tests a 78 y e2e real del flujo de pago.
 
 ## Bloque D — Comunicación + Datos (Fases 9-11) ⬜
 - ⬜ Mensajería interna + editor visual de plantillas (GrapesJS + MJML).
@@ -87,5 +99,6 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ⬜ i18n completo, accesibilidad, pulido visual, tests ampliados, seguridad y seed.
 
 ---
-**Estado:** **Bloques A y B completados** (Fases 1-6) y verificados (58 tests + e2e real sobre
-SQLite). A la espera de confirmación para continuar con el **Bloque C** (pagos y facturación).
+**Estado:** **Bloques A, B y C completados** (Fases 1-8) y verificados (78 tests + e2e real sobre
+SQLite, incl. flujo de pago y factura PDF). A la espera de confirmación para el **Bloque D**
+(mensajería + editor de plantillas, notificaciones/recordatorios por cron, informes/KPIs/auditoría).

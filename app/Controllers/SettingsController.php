@@ -96,6 +96,32 @@ final class SettingsController extends Controller
         $this->redirect('/gestion/sistema/integraciones');
     }
 
+    public function billing(Request $request): never
+    {
+        $this->view('system/settings/billing', [
+            'title' => __('billing.settings_title'),
+            'user' => Auth::user(),
+            'billing' => Settings::group('billing'),
+        ]);
+    }
+
+    public function saveBilling(Request $request): never
+    {
+        Settings::setMany('billing', [
+            'academy_name' => $request->str('academy_name'),
+            'academy_taxid' => $request->str('academy_taxid'),
+            'academy_address' => $request->str('academy_address'),
+            'invoice_series' => $request->str('invoice_series', 'A') ?: 'A',
+            'vat_exempt' => $request->input('vat_exempt') ? '1' : '0',
+            'tax_rate' => (string) (float) $request->input('tax_rate', 21),
+            'iban' => $request->str('iban'),
+            'bizum_number' => $request->str('bizum_number'),
+        ]);
+        Audit::log('settings.billing_update', Auth::id(), 'settings', null, [], $request->ip());
+        Flash::success(__('settings.saved'));
+        $this->redirect('/gestion/sistema/facturacion');
+    }
+
     /** Envía un email de prueba para verificar la configuración SMTP (AJAX). */
     public function testMail(Request $request): never
     {

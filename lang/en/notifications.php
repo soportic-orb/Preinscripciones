@@ -20,4 +20,6 @@ return [
 
     'enrollment_available_subject' => 'Enrolment available — :course',
     'enrollment_available_body' => "Hello :name,\n\nYou can now complete your enrolment for the course :course (:edition) and make the payment from your student dashboard.",
+    'payment_confirmed_subject' => 'Payment confirmed — IEM',
+    'payment_confirmed_body' => "Hello :name,\n\nWe have successfully recorded your payment of €:amount. Thank you. You will receive the invoice in your dashboard shortly.",
 ];

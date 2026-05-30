@@ -5,6 +5,7 @@ $items = [
     'system' => ['/gestion/sistema', __('system.title')],
     'settings' => ['/gestion/sistema/ajustes', __('settings.general_title')],
     'integrations' => ['/gestion/sistema/integraciones', __('settings.integrations_title')],
+    'billing' => ['/gestion/sistema/facturacion', __('billing.settings_title')],
     'fields' => ['/gestion/sistema/campos', __('fields.title')],
     'legal' => ['/gestion/sistema/legales', __('legal.title')],
 ];

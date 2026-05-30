@@ -107,4 +107,25 @@ if (!$db->scalar('SELECT 1 FROM {courses} WHERE code = ?', ['TES-2026'])) {
     echo "  ✓ curso TES-2026 + convocatoria abierta\n";
 }
 
+// --- Ajustes de facturación por defecto ---
+if (\App\Core\Settings::get('billing', 'invoice_series') === null) {
+    \App\Core\Settings::setMany('billing', [
+        'academy_name' => 'Institut d\'Estudis Mèdics',
+        'invoice_series' => 'A',
+        'vat_exempt' => '1',
+        'tax_rate' => '21',
+    ]);
+    \App\Core\Settings::setMany('payments', ['stripe' => '1', 'bizum' => '1', 'transfer' => '1']);
+    echo "  ✓ ajustes de facturación\n";
+}
+
+// --- Descuento de ejemplo ---
+if (!$db->scalar('SELECT 1 FROM {discounts} WHERE code = ?', ['BECA10'])) {
+    \App\Models\Discount::store([
+        'code' => 'BECA10', 'name' => 'Beca antiguos alumnos (10%)', 'type' => 'percent',
+        'value' => 10, 'scope' => 'all', 'max_uses' => 0, 'used_count' => 0, 'is_active' => 1,
+    ]);
+    echo "  ✓ descuento BECA10\n";
+}
+
 echo "Seed completado.\n";

@@ -28,6 +28,15 @@ foreach ($documents as $d) {
     </table>
 </div>
 
+<?php if (in_array($pre['status'], ['pendiente_pago', 'pago_en_revision', 'matriculado'], true)): ?>
+<div class="card">
+    <h3><?= e(__('payments.title')) ?></h3>
+    <p class="text-muted"><?= e(__('payments.access_intro')) ?></p>
+    <a class="btn btn-primary" href="<?= e(url('/panel/preinscripcion/' . $pre['id'] . '/pago')) ?>"><?= e(__('payments.go_to_payment')) ?></a>
+    <a class="btn btn-ghost" href="<?= e(url('/panel/facturacion')) ?>"><?= e(__('billing.invoices')) ?></a>
+</div>
+<?php endif; ?>
+
 <div class="card">
     <h3><?= e(__('preinscription.step_documents')) ?></h3>
     <?php if ($requirements === []): ?>
