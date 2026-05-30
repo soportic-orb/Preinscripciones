@@ -370,5 +370,76 @@ $sent2 = $remSvc->run();
 check('Recordatorios son idempotentes (no se repiten)', $sent2 === 0);
 check('Registro de recordatorio enviado existe', (int) $db->scalar('SELECT COUNT(*) FROM {reminders_sent}') >= 1);
 
+// ====================== Bloque E ======================
+echo "\n== Tests Bloque E ==\n";
+
+// --- Certificados ($pP quedó matriculado en el Bloque C) ---
+$certSvc = new App\Services\CertificateService();
+$certId = $certSvc->issue($pP);
+check('Certificado se emite para matriculado', $certId !== null);
+$cert = App\Models\Certificate::find((int) $certId);
+check('Certificado tiene código de verificación', strlen((string) $cert['code']) >= 8);
+check('Verificación por código encuentra el certificado', App\Models\Certificate::findByCode((string) $cert['code']) !== null);
+check('Emisión es idempotente', $certSvc->issue($pP) === $certId);
+$preDraft = App\Models\Preinscription::store(['user_id' => $uP->id, 'edition_id' => $edP, 'status' => 'preinscrito']);
+check('No se emite certificado si no está matriculado', $certSvc->issue($preDraft) === null);
+
+// --- iCal ---
+$db->update('course_editions', ['start_date' => '2026-09-15 00:00:00', 'end_date' => '2027-06-15 00:00:00'], ['id' => $edP2]);
+$ics = (new App\Services\ExportService())->ical($edP2);
+check('iCal generado contiene VCALENDAR', $ics !== null && str_contains($ics, 'BEGIN:VCALENDAR') && str_contains($ics, 'BEGIN:VEVENT'));
+
+// --- AlexiaEdu CSV ---
+[$ah, $ar] = (new App\Services\ExportService())->alexiaCsv($edP);
+check('Exportación AlexiaEdu trae cabeceras', in_array('Email', $ah, true));
+
+// --- Migración: volcado + paquete ---
+$dumpFile = STORAGE_PATH . '/tmp/test-dump.sql';
+(new App\Services\MigrationService())->dumpDatabase($dumpFile);
+check('Volcado SQL contiene INSERTs', is_file($dumpFile) && str_contains((string) file_get_contents($dumpFile), 'INSERT INTO'));
+@unlink($dumpFile);
+$zip = (new App\Services\MigrationService())->exportPackage();
+check('Paquete de migración .zip creado', is_file($zip));
+$za = new ZipArchive();
+$za->open($zip);
+check('El paquete contiene manifest.json y database.sql', $za->locateName('manifest.json') !== false && $za->locateName('database.sql') !== false);
+$za->close();
+@unlink($zip);
+
+// --- Modo mantenimiento ---
+App\Core\Maintenance::enable('test');
+check('Mantenimiento se activa', App\Core\Maintenance::isActive());
+App\Core\Maintenance::disable();
+check('Mantenimiento se desactiva', !App\Core\Maintenance::isActive());
+
+// --- Paridad i18n: todos los grupos en es/ca/en/pt con las mismas claves ---
+$flatten = function (array $a, string $prefix = '') use (&$flatten): array {
+    $out = [];
+    foreach ($a as $k => $v) {
+        $key = $prefix === '' ? (string) $k : $prefix . '.' . $k;
+        if (is_array($v)) {
+            $out = array_merge($out, $flatten($v, $key));
+        } else {
+            $out[$key] = true;
+        }
+    }
+    return $out;
+};
+$missing = [];
+foreach (glob(LANG_PATH . '/es/*.php') as $esFile) {
+    $group = basename($esFile, '.php');
+    $esKeys = $flatten(require $esFile);
+    foreach (['ca', 'en', 'pt'] as $loc) {
+        $file = LANG_PATH . "/{$loc}/{$group}.php";
+        $keys = is_file($file) ? $flatten(require $file) : [];
+        foreach (array_keys($esKeys) as $k) {
+            if (!isset($keys[$k])) {
+                $missing[] = "{$loc}/{$group}.{$k}";
+            }
+        }
+    }
+}
+check('Paridad i18n es/ca/en/pt (sin claves faltantes)', $missing === [] || (print(implode("\n    ", array_slice($missing, 0, 10)) . "\n") && false));
+
 echo "\nResultado: \033[32m{$passed} OK\033[0m" . ($failed > 0 ? ", \033[31m{$failed} FALLOS\033[0m" : '') . "\n";
 exit($failed > 0 ? 1 : 0);

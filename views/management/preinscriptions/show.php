@@ -131,6 +131,26 @@ $academicFields = FieldDefinition::forForm('academic');
                 <button class="btn btn-outline"><?= e(__('management.to_payment')) ?></button>
             </form>
         <?php endif; ?>
+        <?php if ($pre['status'] === PreinscriptionStatus::MATRICULADO): ?>
+            <?php $cert = \App\Models\Certificate::forPreinscription((int) $pre['id']); ?>
+            <?php if ($cert === null): ?>
+                <form method="post" action="<?= e(url('/gestion/preinscripciones/' . $pre['id'] . '/certificado')) ?>">
+                    <?= csrf_field() ?>
+                    <button class="btn btn-outline"><?= e(__('certificates.issue')) ?></button>
+                </form>
+            <?php else: ?>
+                <a class="btn btn-ghost" href="<?= e(url('/certificado/' . $cert['id'])) ?>"><?= e(__('certificates.download')) ?></a>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Integraciones -->
+<div class="card">
+    <h3><?= e(__('reports.export')) ?> / <?= e(__('certificates.calendar')) ?></h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn btn-ghost btn-sm" href="<?= e(url('/gestion/edicion/' . $pre['edition_id'] . '/alexia')) ?>"><?= e(__('certificates.alexia_export')) ?></a>
+        <a class="btn btn-ghost btn-sm" href="<?= e(url('/edicion/' . $pre['edition_id'] . '/ical')) ?>">iCal</a>
     </div>
 </div>
 

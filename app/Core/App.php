@@ -50,6 +50,18 @@ final class App
         $this->resolveLocale($request);
         $this->enforceHttps($request);
 
+        // Modo mantenimiento (OTA): solo los administradores pueden navegar.
+        if (self::isInstalled() && Maintenance::isActive()) {
+            $user = Auth::user();
+            $isAdmin = $user !== null && Rbac::isAdmin($user);
+            if (!$isAdmin) {
+                http_response_code(503);
+                header('Retry-After: 120');
+                echo View::render('errors/maintenance', [], 'layouts/auth');
+                return;
+            }
+        }
+
         // Cargar definición de rutas.
         (require BASE_PATH . '/routes/web.php')($this->router);
 

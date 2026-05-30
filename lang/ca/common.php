@@ -11,6 +11,7 @@ return [
     'send' => 'Enviar',
     'loading' => 'Carregant…',
     'too_many_requests' => 'Massa intents. Espera uns minuts i torna-ho a provar.',
+    'skip_to_content' => 'Saltar al contingut',
     'language' => 'Idioma',
     'view' => 'Veure',
     'logout' => 'Tancar sessió',

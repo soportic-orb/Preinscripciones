@@ -120,6 +120,13 @@ configuración) · `estudiante` → su panel.
 - `ReminderService` (cron, `cli/cron.php`): recordatorios idempotentes (tabla `reminders_sent`).
 - `ReportService`: KPIs y exportación CSV. `AuditController` (visor de auditoría, solo admin).
 
+## Integraciones y operaciones (Bloque E)
+- `Certificate` + `CertificateService`: diploma PDF (Dompdf) con código + QR (`chillerlan/php-qrcode`)
+  y verificación pública. `ExportService`: AlexiaEdu (CSV) e iCal.
+- `UpdateService` (OTA por Git: check/update con mantenimiento, backup, migraciones y rollback) +
+  `App\Core\Maintenance`. `MigrationService`: exportación de paquete `.zip` (dump PDO portable).
+- Vendor: Dompdf, Stripe SDK y php-qrcode.
+
 ## Estado actual
-Ver `PLAN.md`. **Bloques A, B, C y D completados (Fases 1-11).** Siguiente: Bloque E (certificados
-PDF + AlexiaEdu + iCal, OTA por Git, migración guiada y pulido final).
+Ver `PLAN.md`. **PROYECTO COMPLETO: Bloques A-E (Fases 1-15).** 108 tests + e2e verificados.
+Pendiente solo de credenciales reales (Stripe test/SMTP), repo Git para OTA y despliegue.

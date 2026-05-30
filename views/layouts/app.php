@@ -18,6 +18,7 @@ $user = Auth::user();
     <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
 </head>
 <body>
+    <a href="#main" class="skip-link"><?= e(__('common.skip_to_content')) ?></a>
     <?php require VIEW_PATH . '/partials/toasts.php'; ?>
 
     <header class="site-header">
@@ -26,7 +27,7 @@ $user = Auth::user();
                 <img src="<?= e(asset('img/logo.svg')) ?>" alt="IEM" onerror="this.style.display='none'">
                 <span>IEM</span>
             </a>
-            <nav class="nav">
+            <nav class="nav" aria-label="<?= e(__('nav.home')) ?>">
                 <a href="<?= e(url('/')) ?>"><?= e(__('nav.home')) ?></a>
                 <?php if ($user === null): ?>
                     <a href="<?= e(url('/login')) ?>"><?= e(__('nav.login')) ?></a>
@@ -44,13 +45,14 @@ $user = Auth::user();
         </div>
     </header>
 
-    <main class="container" style="padding-top:24px;padding-bottom:24px">
+    <main id="main" class="container" style="padding-top:24px;padding-bottom:24px">
         <?= View::yield('content') ?>
     </main>
 
     <footer class="site-footer">
         <div class="container">
             <span>© <?= date('Y') ?> Institut d'Estudis Mèdics · <?= e($appName) ?></span>
+            <a href="<?= e(url('/verificar-certificado')) ?>" style="margin-left:12px"><?= e(__('certificates.verify_title')) ?></a>
         </div>
     </footer>
 

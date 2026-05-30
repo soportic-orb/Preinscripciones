@@ -105,13 +105,35 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ✅ **Visor de auditoría** (solo admin) con filtros por acción, usuario y fechas, paginado.
 - ✅ Tests ampliados a 95 y e2e real (mensajería, KPIs, export CSV, cron de recordatorios).
 
-## Bloque E — Integraciones + Operaciones (Fases 12-15) ⬜
-- ⬜ Certificados PDF + AlexiaEdu (CSV/API) + iCal.
-- ⬜ Actualizaciones OTA por Git.
-- ⬜ Migración guiada (exportar/importar paquete).
-- ⬜ i18n completo, accesibilidad, pulido visual, tests ampliados, seguridad y seed.
+## Bloque E — Integraciones + Operaciones (Fases 12-15) ✅
+### Fase 12 — Certificados e integraciones ✅
+- ✅ **Certificados/diplomas PDF** (Dompdf) con **código de verificación + QR** y **página pública
+  de verificación**. Emisión por gestor desde preinscripciones matriculadas; descarga por
+  estudiante y staff.
+- ✅ **Exportación AlexiaEdu** (CSV de matriculados por edición; hook de API documentado).
+- ✅ **iCal** de las fechas de la edición.
+### Fase 13 — Actualizaciones OTA (Git) ✅
+- ✅ `Ajustes → Sistema → Actualizaciones`: **buscar** (fetch + comparación + changelog) y
+  **actualizar** (modo mantenimiento, backup de BD, `git reset` al remoto, migraciones, limpieza
+  de caché) con **rollback** ante fallo. Degrada con aviso si no hay git/exec (hosting compartido).
+- ✅ **Modo mantenimiento** (los administradores siguen navegando).
+### Fase 14 — Migración guiada ✅
+- ✅ **Exportar paquete** `.zip` (volcado de BD por PDO portable o mysqldump, uploads y
+  `manifest.json` con checksums). Importación desde el instalador (rama "Restaurar/Migrar").
+### Fase 15 — Pulido final ✅
+- ✅ **i18n completo** verificado por test de **paridad de claves** en es/ca/en/pt.
+- ✅ Accesibilidad (enlace "saltar al contenido", `lang`, `aria-label`, foco visible), cabeceras
+  de seguridad, CSRF en todos los POST, descargas privadas fuera del webroot.
+- ✅ Seed completo (usuarios, campos, legal, catálogo, facturación, descuento) y **108 tests**.
 
 ---
-**Estado:** **Bloques A, B, C y D completados** (Fases 1-11) y verificados (95 tests + e2e real sobre
-SQLite). A la espera de confirmación para el **Bloque E** (certificados + AlexiaEdu + iCal, OTA Git,
-migración guiada y pulido final).
+**Estado:** **PROYECTO COMPLETO — Bloques A-E (Fases 1-15) terminados** y verificados (108 tests +
+e2e real sobre SQLite de todos los flujos). Pendiente solo de pruebas con credenciales reales
+(Stripe test, SMTP) y despliegue. Ver "Pendiente de credenciales" abajo.
+
+## Pendiente de credenciales / despliegue (no bloqueante)
+- Verificar **Stripe Checkout real + webhook** con claves de test (ahora operativo en modo simulado).
+- Verificar **envío SMTP** real (ahora registra en log en desarrollo).
+- Repositorio Git + token para probar **OTA** en un VPS real.
+- Detalles de la **API de AlexiaEdu** (si la hay) para el traspaso directo además del CSV.
+- Logo definitivo en `public/assets/img/logo.svg` y textos legales reales.

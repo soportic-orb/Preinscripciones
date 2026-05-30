@@ -46,6 +46,9 @@ return static function (Router $r): void {
     // --- Webhook de Stripe (público, sin CSRF; verifica firma) ---
     $r->post('/webhooks/stripe', 'StripeWebhookController@handle')->name('stripe.webhook');
 
+    // --- Verificación pública de certificados ---
+    $r->get('/verificar-certificado', 'CertificatesController@verify')->name('certificate.verify');
+
     // --- Sesión autenticada ---
     $r->group(['auth'], function (Router $r): void {
         $r->get('/panel', 'DashboardController@index')->name('dashboard');
@@ -66,6 +69,10 @@ return static function (Router $r): void {
         // Mensajería (estudiante y personal)
         $r->get('/panel/mensajes', 'MessagesController@index')->name('messages.index');
         $r->get('/panel/mensajes/{id}', 'MessagesController@show')->name('messages.show');
+
+        // Certificados e iCal
+        $r->get('/certificado/{id}', 'CertificatesController@download')->name('certificate.download');
+        $r->get('/edicion/{id}/ical', 'ExportController@ical')->name('edition.ical');
     });
     $r->group(['auth', 'csrf'], function (Router $r): void {
         $r->post('/logout', 'AuthController@logout')->name('logout');
@@ -102,6 +109,9 @@ return static function (Router $r): void {
         // Informes / KPIs / exportación
         $r->get('/gestion/informes', 'ReportsController@index')->name('reports.index');
         $r->get('/gestion/informes/export', 'ReportsController@export')->name('reports.export');
+
+        // AlexiaEdu (CSV de matriculados)
+        $r->get('/gestion/edicion/{id}/alexia', 'ExportController@alexia')->name('edition.alexia');
     });
     $r->group(['role:owner,admin,gestor', 'csrf'], function (Router $r): void {
         $r->post('/gestion/cursos', 'CoursesController@store')->name('courses.store');
@@ -116,6 +126,7 @@ return static function (Router $r): void {
         $r->post('/gestion/preinscripciones/{id}/aceptar', 'ManagePreinscriptionsController@accept')->name('manage.accept');
         $r->post('/gestion/preinscripciones/{id}/rechazar', 'ManagePreinscriptionsController@reject')->name('manage.reject');
         $r->post('/gestion/preinscripciones/{id}/transicion', 'ManagePreinscriptionsController@transition')->name('manage.transition');
+        $r->post('/gestion/preinscripciones/{id}/certificado', 'CertificatesController@issue')->name('manage.certificate');
 
         $r->post('/gestion/pagos/{id}/validar', 'ManagePaymentsController@validateProof')->name('payments.validate');
         $r->post('/gestion/pagos/{id}/reembolso', 'ManagePaymentsController@refund')->name('payments.refund');
@@ -152,6 +163,10 @@ return static function (Router $r): void {
         $r->get('/gestion/sistema/plantillas', 'EmailTemplatesController@index')->name('templates.index');
         $r->get('/gestion/sistema/plantillas/{event}/{locale}', 'EmailTemplatesController@edit')->name('templates.edit');
         $r->get('/gestion/auditoria', 'AuditController@index')->name('audit.index');
+
+        // Actualizaciones OTA y migración guiada
+        $r->get('/gestion/sistema/actualizaciones', 'SystemUpdateController@index')->name('updates.index');
+        $r->get('/gestion/sistema/migracion', 'SystemMigrationController@index')->name('migration.index');
     });
 
     $r->group(['role:owner,admin', 'csrf'], function (Router $r): void {
@@ -168,5 +183,7 @@ return static function (Router $r): void {
         $r->post('/gestion/sistema/facturacion', 'SettingsController@saveBilling')->name('settings.billing.save');
         $r->post('/gestion/descuentos', 'DiscountsController@store')->name('discounts.store');
         $r->post('/gestion/sistema/plantillas/{event}/{locale}', 'EmailTemplatesController@store')->name('templates.store');
+        $r->post('/gestion/sistema/actualizaciones', 'SystemUpdateController@run')->name('updates.run');
+        $r->post('/gestion/sistema/migracion/exportar', 'SystemMigrationController@export')->name('migration.export');
     });
 };

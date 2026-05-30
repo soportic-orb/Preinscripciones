@@ -9,6 +9,8 @@ $items = [
     'fields' => ['/gestion/sistema/campos', __('fields.title')],
     'legal' => ['/gestion/sistema/legales', __('legal.title')],
     'templates' => ['/gestion/sistema/plantillas', __('templates.title')],
+    'updates' => ['/gestion/sistema/actualizaciones', __('updates.title')],
+    'migration' => ['/gestion/sistema/migracion', __('migration.title')],
 ];
 ?>
 <nav class="admin-nav">

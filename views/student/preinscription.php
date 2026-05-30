@@ -28,6 +28,19 @@ foreach ($documents as $d) {
     </table>
 </div>
 
+<?php if ($pre['status'] === 'matriculado'): ?>
+    <?php $cert = \App\Models\Certificate::forPreinscription((int) $pre['id']); ?>
+    <div class="card">
+        <h3><?= e(__('certificates.title')) ?></h3>
+        <?php if ($cert !== null): ?>
+            <a class="btn btn-primary" href="<?= e(url('/certificado/' . $cert['id'])) ?>"><?= e(__('certificates.download')) ?></a>
+        <?php else: ?>
+            <p class="text-muted" style="display:inline-block;margin-right:8px"><?= e(__('certificates.pending')) ?></p>
+        <?php endif; ?>
+        <a class="btn btn-ghost" href="<?= e(url('/edicion/' . $pre['edition_id'] . '/ical')) ?>"><?= e(__('certificates.add_to_calendar')) ?></a>
+    </div>
+<?php endif; ?>
+
 <?php if (in_array($pre['status'], ['pendiente_pago', 'pago_en_revision', 'matriculado'], true)): ?>
 <div class="card">
     <h3><?= e(__('payments.title')) ?></h3>

@@ -11,6 +11,7 @@ return [
     'send' => 'Send',
     'loading' => 'Loading…',
     'too_many_requests' => 'Too many attempts. Please wait a few minutes and try again.',
+    'skip_to_content' => 'Skip to content',
     'language' => 'Language',
     'view' => 'View',
     'logout' => 'Log out',

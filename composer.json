@@ -12,6 +12,7 @@
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-pdo": "*",
+        "chillerlan/php-qrcode": "^5.0",
         "dompdf/dompdf": "^3.0",
         "stripe/stripe-php": "^16.0"
     },
