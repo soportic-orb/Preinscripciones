@@ -12,6 +12,7 @@ return [
     'loading' => 'Carregant…',
     'too_many_requests' => 'Massa intents. Espera uns minuts i torna-ho a provar.',
     'language' => 'Idioma',
+    'view' => 'Veure',
     'logout' => 'Tancar sessió',
     'yes' => 'Sí',
     'no' => 'No',

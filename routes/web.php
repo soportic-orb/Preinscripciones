@@ -40,12 +40,54 @@ return static function (Router $r): void {
         $r->post('/2fa', 'AuthController@verify2fa')->name('2fa.verify');
     });
 
+    // --- Catálogo público de preinscripción ---
+    $r->get('/preinscripcion', 'PreinscriptionController@catalog')->name('catalog');
+
     // --- Sesión autenticada ---
     $r->group(['auth'], function (Router $r): void {
         $r->get('/panel', 'DashboardController@index')->name('dashboard');
+
+        // Asistente de preinscripción (estudiante)
+        $r->get('/preinscripcion/{id}/paso/{step}', 'PreinscriptionController@step')->name('preinscription.step');
+
+        // Panel de estudiante
+        $r->get('/panel/preinscripcion/{id}', 'StudentController@show')->name('student.preinscription');
+        $r->get('/panel/exportar-datos', 'StudentController@exportData')->name('student.export');
+        $r->get('/documento/{id}', 'StudentController@download')->name('document.download');
     });
     $r->group(['auth', 'csrf'], function (Router $r): void {
         $r->post('/logout', 'AuthController@logout')->name('logout');
+        $r->post('/preinscripcion/iniciar', 'PreinscriptionController@start')->name('preinscription.start');
+        $r->post('/preinscripcion/{id}/paso/{step}', 'PreinscriptionController@save')->name('preinscription.save');
+        $r->post('/preinscripcion/{id}/documento', 'PreinscriptionController@uploadDocument')->name('preinscription.upload');
+        $r->post('/panel/preinscripcion/{id}/documento', 'StudentController@uploadDocument')->name('student.upload');
+        $r->post('/panel/solicitar-supresion', 'StudentController@requestDeletion')->name('student.deletion');
+    });
+
+    // --- Gestión del proceso (staff: owner/admin/gestor) ---
+    $r->group(['role:owner,admin,gestor'], function (Router $r): void {
+        $r->get('/gestion/cursos', 'CoursesController@index')->name('courses.index');
+        $r->get('/gestion/cursos/nuevo', 'CoursesController@create')->name('courses.create');
+        $r->get('/gestion/cursos/{id}/editar', 'CoursesController@edit')->name('courses.edit');
+        $r->get('/gestion/cursos/{course}/ediciones/nueva', 'EditionsController@create')->name('editions.create');
+        $r->get('/gestion/ediciones/{id}/editar', 'EditionsController@edit')->name('editions.edit');
+
+        $r->get('/gestion/preinscripciones', 'ManagePreinscriptionsController@index')->name('manage.index');
+        $r->get('/gestion/preinscripciones/{id}', 'ManagePreinscriptionsController@show')->name('manage.show');
+    });
+    $r->group(['role:owner,admin,gestor', 'csrf'], function (Router $r): void {
+        $r->post('/gestion/cursos', 'CoursesController@store')->name('courses.store');
+        $r->post('/gestion/cursos/{id}', 'CoursesController@update')->name('courses.update');
+        $r->post('/gestion/cursos/{course}/ediciones', 'EditionsController@store')->name('editions.store');
+        $r->post('/gestion/ediciones/{id}', 'EditionsController@update')->name('editions.update');
+        $r->post('/gestion/ediciones/{id}/requisitos', 'EditionsController@addRequirement')->name('editions.req.add');
+        $r->post('/gestion/ediciones/{id}/requisitos/{reqId}/eliminar', 'EditionsController@deleteRequirement')->name('editions.req.del');
+
+        $r->post('/gestion/documentos/{id}/validar', 'ManagePreinscriptionsController@validateDocument')->name('manage.doc.validate');
+        $r->post('/gestion/preinscripciones/promover-lista', 'ManagePreinscriptionsController@promoteWaitlist')->name('manage.waitlist');
+        $r->post('/gestion/preinscripciones/{id}/aceptar', 'ManagePreinscriptionsController@accept')->name('manage.accept');
+        $r->post('/gestion/preinscripciones/{id}/rechazar', 'ManagePreinscriptionsController@reject')->name('manage.reject');
+        $r->post('/gestion/preinscripciones/{id}/transicion', 'ManagePreinscriptionsController@transition')->name('manage.transition');
     });
 
     // --- Panel de gestión (staff) ---

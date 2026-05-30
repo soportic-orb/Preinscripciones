@@ -45,12 +45,31 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ✅ Subnav de administración, seed de campos y texto legal de ejemplo, tests ampliados
   (41 casos en total) y verificación de render de todas las vistas nuevas.
 
-## Bloque B — Catálogo + Preinscripción + Paneles (Fases 3-6) ⬜
-- ⬜ Catálogo: cursos, convocatorias/ediciones, aforo, lista de espera, periodos,
-  requisitos documentales, prerrequisitos.
-- ⬜ Asistente de preinscripción multipaso (menor/tutor, guardar y reanudar).
-- ⬜ Panel de Estudiante (preinscripciones, documentos, ficha, derechos RGPD).
-- ⬜ Flujo de aprobación de gestores + máquina de estados + emails.
+## Bloque B — Catálogo + Preinscripción + Paneles (Fases 3-6) ✅
+### Fase 3 — Catálogo formativo ✅
+- ✅ Cursos (multiidioma, tipo reglado/no reglado, área, precio, **prerrequisito** entre cursos).
+- ✅ Convocatorias/ediciones: fechas, horario, modalidad, sede, precio (hereda o sobrescribe),
+  **aforo**, formas de pago, **periodo de preinscripción** y estado (draft/open/closed).
+- ✅ **Requisitos documentales** configurables por curso/edición (obligatorio, con caducidad).
+- ✅ CRUD de catálogo desde el panel de gestión (cursos + ediciones + requisitos).
+### Fase 4 — Asistente de preinscripción multipaso ✅
+- ✅ Catálogo público de convocatorias abiertas con plazas/precio.
+- ✅ Asistente: datos del estudiante y académicos (**campos dinámicos**), **tutor legal** con
+  doble consentimiento si es menor (detección por fecha de nacimiento), documentación, revisión.
+- ✅ **Guardar y reanudar** (borrador persistido con paso actual). Control de periodo, aforo
+  (→ lista de espera), prerrequisitos y preinscripción duplicada.
+### Fase 5 — Panel de Estudiante ✅
+- ✅ Listado de preinscripciones con estado, detalle, subida/re-subida de documentos,
+  **descarga segura** (fuera del webroot, con control de acceso).
+- ✅ **Derechos RGPD**: exportar mis datos (JSON) y solicitar supresión.
+### Fase 6 — Flujo de aprobación (gestores) ✅
+- ✅ **Máquina de estados** explícita (`PreinscriptionStatus` + `PreinscriptionService`) con
+  transiciones controladas, historial e integración con auditoría.
+- ✅ Listado con filtros, detalle, **validación documental** (validar/rechazar con motivo),
+  aceptar/rechazar, **aforo con paso automático a lista de espera** y **promoción automática**.
+- ✅ **Notificaciones por email** (multiidioma) en eventos clave (creada, aceptada, rechazada,
+  lista de espera, matrícula disponible) + toasts.
+- ✅ Tests del bloque (58 en total) y verificación e2e real (login, gestión y asistente).
 
 ## Bloque C — Dinero (Fases 7-8) ⬜
 - ⬜ Pagos: Stripe, Bizum, transferencia con validación, fraccionado, descuentos/becas, FUNDAE.
@@ -68,6 +87,5 @@ Leyenda: ✅ hecho · 🚧 en curso · ⬜ pendiente
 - ⬜ i18n completo, accesibilidad, pulido visual, tests ampliados, seguridad y seed.
 
 ---
-**Estado:** **Bloque A completado** (Fases 1 y 2) y verificado. A la espera de confirmación
-para continuar con el **Bloque B** (catálogo formativo + asistente de preinscripción +
-paneles + flujo de aprobación).
+**Estado:** **Bloques A y B completados** (Fases 1-6) y verificados (58 tests + e2e real sobre
+SQLite). A la espera de confirmación para continuar con el **Bloque C** (pagos y facturación).

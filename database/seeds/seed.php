@@ -68,4 +68,43 @@ if (\App\Models\LegalDocument::currentVersion('privacy') === 0) {
     echo "  ✓ texto legal privacy v1\n";
 }
 
+// --- Curso y convocatoria de ejemplo ---
+if (!$db->scalar('SELECT 1 FROM {courses} WHERE code = ?', ['TES-2026'])) {
+    $courseId = \App\Models\Course::store([
+        'code' => 'TES-2026',
+        'title' => json_encode(['es' => 'Técnico en Emergencias Sanitarias', 'ca' => 'Tècnic en Emergències Sanitàries', 'en' => 'Healthcare Emergency Technician', 'pt' => 'Técnico em Emergências de Saúde'], JSON_UNESCAPED_UNICODE),
+        'description' => json_encode(['es' => 'Formación profesional en atención sanitaria de urgencias.'], JSON_UNESCAPED_UNICODE),
+        'access_requirements' => '{}',
+        'course_type' => 'reglado',
+        'area' => 'Sanidad',
+        'price' => 1200.00,
+        'is_active' => 1,
+    ]);
+    $editionId = \App\Models\CourseEdition::store([
+        'course_id' => $courseId,
+        'name' => 'Convocatoria 2026-2027',
+        'start_date' => '2026-09-15 00:00:00',
+        'modality' => 'presencial',
+        'location' => 'Barcelona',
+        'price' => null,
+        'capacity' => 25,
+        'waitlist_enabled' => 1,
+        'payment_methods' => json_encode(['transfer', 'stripe']),
+        'preinscription_open_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+        'preinscription_close_at' => date('Y-m-d H:i:s', strtotime('+60 days')),
+        'status' => 'open',
+    ]);
+    \App\Models\DocumentRequirement::store([
+        'course_id' => null, 'edition_id' => $editionId,
+        'name' => json_encode(['es' => 'DNI/NIE', 'ca' => 'DNI/NIE', 'en' => 'ID document', 'pt' => 'Documento de identificação'], JSON_UNESCAPED_UNICODE),
+        'description' => '{}', 'is_required' => 1, 'has_expiry' => 0, 'sort_order' => 10,
+    ]);
+    \App\Models\DocumentRequirement::store([
+        'course_id' => null, 'edition_id' => $editionId,
+        'name' => json_encode(['es' => 'Certificado de delitos sexuales', 'ca' => 'Certificat de delictes sexuals', 'en' => 'Criminal record certificate', 'pt' => 'Certificado de registo criminal'], JSON_UNESCAPED_UNICODE),
+        'description' => '{}', 'is_required' => 1, 'has_expiry' => 1, 'sort_order' => 20,
+    ]);
+    echo "  ✓ curso TES-2026 + convocatoria abierta\n";
+}
+
 echo "Seed completado.\n";

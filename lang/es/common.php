@@ -12,6 +12,7 @@ return [
     'loading' => 'Cargando…',
     'too_many_requests' => 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
     'language' => 'Idioma',
+    'view' => 'Ver',
     'logout' => 'Cerrar sesión',
     'yes' => 'Sí',
     'no' => 'No',

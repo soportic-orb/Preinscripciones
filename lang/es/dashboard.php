@@ -8,6 +8,7 @@ return [
     'welcome' => 'Hola, :name',
     'student_intro' => 'Desde aquí podrás gestionar tus preinscripciones, matrículas y documentos.',
     'management_intro' => 'Gestiona preinscripciones, inscripciones, pagos y documentación.',
+    'my_preinscriptions' => 'Mis preinscripciones',
     'no_preinscriptions' => 'Aún no tienes preinscripciones. El catálogo de cursos estará disponible en breve.',
     'role' => 'Rol',
     'pending_module' => 'Módulo en construcción — disponible en la siguiente fase.',

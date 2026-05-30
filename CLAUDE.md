@@ -23,9 +23,12 @@ app/
   bootstrap.php        Autoloader, entorno, manejo de errores
   Core/                Router, Request/Response, Database(PDO), Auth, Rbac, Csrf, I18n,
                        Validator, Migrator, Mailer, Totp, Token, Audit, Flash, Shell, ...
-  Controllers/         Home, Auth, Dashboard, System, Fields, Settings, Legal
-  Models/              Model (base), User, FieldDefinition, LegalDocument
-  Services/            FieldService (motor campos dinámicos), ConsentService
+  Controllers/         Home, Auth, Dashboard, System, Fields, Settings, Legal, Courses,
+                       Editions, Preinscription, Student, ManagePreinscriptions
+  Models/              Model, User, FieldDefinition, LegalDocument, Course, CourseEdition,
+                       Preinscription, DocumentRequirement
+  Services/            FieldService, ConsentService, PreinscriptionService + Status,
+                       DocumentService, Notifier
 config/                .env (generado, 0600), installed.lock
 database/
   migrations/          NNN_*.php (devuelven ['up'=>fn, 'down'=>fn])
@@ -88,6 +91,18 @@ configuración) · `estudiante` → su panel.
   integraciones vía `App\Core\EnvWriter` (reescribe `config/.env`, 0600).
 - Legal: `LegalDocument` + `consents` con `ConsentService` (consentimientos versionados).
 
+## Catálogo y preinscripción (Bloque B)
+- `Course` / `CourseEdition` (textos multiidioma JSON, aforo, periodo, formas de pago,
+  prerrequisito). `DocumentRequirement` por curso/edición (obligatorio, caducidad).
+- `Preinscription` + **máquina de estados** `PreinscriptionStatus` (borrador → preinscrito →
+  documentacion_en_revision → aceptado/rechazado/en_lista_de_espera → pendiente_pago →
+  pago_en_revision → matriculado/cancelado). `PreinscriptionService` aplica transiciones,
+  aforo y promoción de lista de espera; registra historial + auditoría + email.
+- `DocumentService`: subida fuera del webroot (`storage/uploads/preinscriptions/<id>/`),
+  validación de mime/tamaño y descarga mediante endpoint autenticado.
+- `Notifier`: emails multiidioma (grupo lang `notifications`) en el idioma del destinatario.
+- Asistente multipaso con campos dinámicos, tutor (menor) y guardar/reanudar (borrador).
+
 ## Estado actual
-Ver `PLAN.md`. **Bloque A completado (Fases 1 y 2).** Siguiente: Bloque B (catálogo formativo,
-asistente de preinscripción, paneles y flujo de aprobación).
+Ver `PLAN.md`. **Bloques A y B completados (Fases 1-6).** Siguiente: Bloque C (pagos:
+Stripe/Bizum/transferencia, fraccionado, descuentos, FUNDAE; y facturación PDF).

@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Rbac;
 use App\Core\Request;
+use App\Models\Preinscription;
 
 /**
  * Paneles tras el login. En esta fase muestra un panel base por rol;
@@ -24,6 +25,7 @@ final class DashboardController extends Controller
         $this->view('dashboard/student', [
             'title' => __('dashboard.student_title'),
             'user' => $user,
+            'preinscriptions' => $user !== null ? Preinscription::forUser($user->id) : [],
         ]);
     }
 

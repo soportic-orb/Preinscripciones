@@ -210,5 +210,64 @@ check('Consentimiento aceptado de versión vigente', $consent->hasAcceptedCurren
 LegalDocument::publishNewVersion('terms', ['es' => ['title' => 'Términos', 'body' => 'v3']]);
 check('Nueva versión invalida consentimiento previo', !$consent->hasAcceptedCurrent($user->id, 'terms'));
 
+// ====================== Bloque B ======================
+echo "\n== Tests Bloque B ==\n";
+
+// --- Máquina de estados ---
+check('Transición válida borrador→preinscrito', App\Services\PreinscriptionStatus::canTransition('borrador', 'preinscrito'));
+check('Transición inválida borrador→matriculado', !App\Services\PreinscriptionStatus::canTransition('borrador', 'matriculado'));
+check('Transición válida aceptado→pendiente_pago', App\Services\PreinscriptionStatus::canTransition('aceptado', 'pendiente_pago'));
+check('Estado rechazado es terminal', App\Services\PreinscriptionStatus::transitions()['rechazado'] === []);
+
+// --- Catálogo + aforo + lista de espera ---
+$courseId = App\Models\Course::store([
+    'code' => 'C1', 'title' => json_encode(['es' => 'Curso 1']), 'description' => '{}',
+    'access_requirements' => '{}', 'course_type' => 'reglado', 'price' => 100, 'is_active' => 1,
+]);
+$edId = App\Models\CourseEdition::store([
+    'course_id' => $courseId, 'name' => 'Ed1', 'modality' => 'online', 'capacity' => 1,
+    'waitlist_enabled' => 1, 'payment_methods' => '[]', 'status' => 'open',
+    'preinscription_open_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+    'preinscription_close_at' => date('Y-m-d H:i:s', strtotime('+1 day')),
+]);
+$edition = App\Models\CourseEdition::findWithCourse($edId);
+check('Edición abierta detectada', App\Models\CourseEdition::isOpenNow($edition));
+check('Precio efectivo hereda del curso', App\Models\CourseEdition::effectivePrice($edition) === 100.0);
+
+// Dos estudiantes preinscritos; capacidad = 1.
+$u1 = App\Models\User::create(['name' => 'A', 'email' => 'a@t.com', 'password' => 'Abcdef12345!', 'role' => 'estudiante', 'locale' => 'es', 'is_active' => 1]);
+$u2 = App\Models\User::create(['name' => 'B', 'email' => 'b@t.com', 'password' => 'Abcdef12345!', 'role' => 'estudiante', 'locale' => 'es', 'is_active' => 1]);
+$p1 = App\Models\Preinscription::store(['user_id' => $u1->id, 'edition_id' => $edId, 'status' => 'preinscrito']);
+$p2 = App\Models\Preinscription::store(['user_id' => $u2->id, 'edition_id' => $edId, 'status' => 'preinscrito']);
+
+$svc = new App\Services\PreinscriptionService();
+check('Hay plazas libres al inicio', $svc->hasFreeSeats($edId));
+$r1 = $svc->accept($p1);
+check('Primer aceptado ocupa plaza', $r1 === 'aceptado');
+check('Sin plazas tras aceptar a uno', !$svc->hasFreeSeats($edId));
+$r2 = $svc->accept($p2);
+check('Segundo va a lista de espera', $r2 === 'en_lista_de_espera');
+check('occupiedSeats cuenta 1', App\Models\Preinscription::occupiedSeats($edId) === 1);
+
+// Cancelar al aceptado libera plaza y promueve al de lista de espera.
+check('Aceptado no puede ir a rechazado', !App\Services\PreinscriptionStatus::canTransition('aceptado', 'rechazado'));
+$svc->transition($p1, 'cancelado', null, 'baja');
+$p2row = App\Models\Preinscription::find($p2);
+check('Promoción automática de lista de espera', $p2row['status'] === 'aceptado');
+
+// Historial de estados registrado.
+$hist = $db->fetchAll('SELECT * FROM {preinscription_status_history} WHERE preinscription_id = ?', [$p2]);
+check('Historial de estados registrado', count($hist) >= 1);
+
+// existsActive y draftFor.
+check('existsActive detecta preinscripción activa', App\Models\Preinscription::existsActive($u2->id, $edId));
+
+// --- Validación documental completa ---
+$reqId = App\Models\DocumentRequirement::store(['course_id' => null, 'edition_id' => $edId, 'name' => '{"es":"DNI"}', 'description' => '{}', 'is_required' => 1, 'has_expiry' => 0, 'sort_order' => 0]);
+$docSvc = new App\Services\DocumentService();
+check('Falta documentación obligatoria', !$docSvc->allRequiredValidated($p2, $edId, $courseId));
+$db->insert('preinscription_documents', ['preinscription_id' => $p2, 'requirement_id' => $reqId, 'file_path' => 'x', 'original_name' => 'x.pdf', 'status' => 'validado', 'uploaded_at' => date('Y-m-d H:i:s')]);
+check('Documentación obligatoria validada', $docSvc->allRequiredValidated($p2, $edId, $courseId));
+
 echo "\nResultado: \033[32m{$passed} OK\033[0m" . ($failed > 0 ? ", \033[31m{$failed} FALLOS\033[0m" : '') . "\n";
 exit($failed > 0 ? 1 : 0);
